@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using TheBugTracker.Client.Models;
 
 namespace TheBugTracker.Models
 {
-    public class TicketAttatchment
+    public class TicketAttachment
     {
         private DateTimeOffset _created;
 
@@ -35,9 +36,24 @@ namespace TheBugTracker.Models
         public string? UserId { get; set; }
         public virtual ApplicationUser? User { get; set; }
 
+    }
 
-
-
-
+    public static class TicketAttachmentsExtensions
+    {
+        public static TicketAttachmentDTO ToDTO(this TicketAttachment attachment)
+        {
+            TicketAttachmentDTO dto = new()
+            {
+                Id = attachment.Id,
+                FileName = attachment.FileName,
+                Description = attachment.Description,
+                Created = attachment.Created,
+                AttachmentUrl = $"api/attachments/{attachment.UploadId}",
+                UserId = attachment.UserId,
+                User = attachment.User?.ToDTO(),
+                TicketId = attachment.TicketId,
+            };
+            return dto;
+        }
     }
 }

@@ -7,7 +7,7 @@ using TheBugTracker.Models;
 
 namespace TheBugTracker.Controllers
 {
-    [Route("[controller]")]
+    [Route("uploads")]
     [ApiController]
     public class UploadsController(ApplicationDbContext context) : ControllerBase
     {

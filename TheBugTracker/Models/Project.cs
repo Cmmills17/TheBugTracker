@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.CodeAnalysis.CSharp;
+using System.ComponentModel.DataAnnotations;
 using TheBugTracker.Client.Models;
 using TheBugTracker.Client.Models.Enums;
 
@@ -54,8 +55,15 @@ namespace TheBugTracker.Models
 
     public static class ProjectExtensions
     {
+
         public static ProjectDTO ToDTO(this Project project)
         {
+
+            foreach (var ticket in project.Tickets)
+            {
+                ticket.Project = null;
+            }
+
             ProjectDTO dto = new ProjectDTO()
             {
                 Id = project.Id,
@@ -66,8 +74,9 @@ namespace TheBugTracker.Models
                 EndDate = project.EndDate,
                 Priority = project.Priority,
                 Archive = project.Archive,
-                // TODO: members
-                // TODO: tickets
+                Tickets = [.. project.Tickets.Select(t => t.ToDTO())],
+                Members = [.. project.Members.Select(u => u.ToDTO())],
+                
             };
             return dto;
         }

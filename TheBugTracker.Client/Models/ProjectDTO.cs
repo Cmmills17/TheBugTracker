@@ -40,8 +40,8 @@ namespace TheBugTracker.Client.Models
 
         public bool Archive { get; set; } = false;
 
+        public ICollection<UserDTO> Members { get; set; } = [];
 
-        //public ICollection<ApplicationUser> Members { get; set; } = [];
-        //public ICollection<Ticket> Tickets { get; set; } = [];
+        public ICollection<TicketDTO> Tickets { get; set; } = [];
     }
 }

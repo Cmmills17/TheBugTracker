@@ -16,7 +16,7 @@ namespace TheBugTracker.Client.Models
 
         // TODO:
 
-        //public ICollection<ApplicationUser> Members { get; set; } = [];
+        public ICollection<UserDTO> Members { get; set; } = [];
 
         public ICollection<ProjectDTO> Projects { get; set; } = [];
 
