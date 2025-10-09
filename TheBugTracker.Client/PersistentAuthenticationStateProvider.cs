@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using TheBugTracker.Client.Models;
 
 namespace TheBugTracker.Client
 {
@@ -27,13 +26,16 @@ namespace TheBugTracker.Client
                 return;
             }
 
-            Claim[] claims = [
+            Claim[] claims = 
+            [
                 new Claim(ClaimTypes.NameIdentifier, userInfo.UserId),
                 new Claim(ClaimTypes.Name, userInfo.Email),
                 new Claim(ClaimTypes.Email, userInfo.Email),
-                new Claim("FirstName" ,userInfo.Firstname),
-                new Claim("LastName" ,userInfo.Lastname),
-                new Claim(nameof(UserInfo.ProfilePictureUrl), userInfo.ProfilePictureUrl)
+                new Claim(nameof(UserInfo.FirstName) ,userInfo.FirstName),
+                new Claim(nameof(UserInfo.LastName) ,userInfo.LastName),
+                new Claim(nameof(UserInfo.CompanyId), userInfo.CompanyId.ToString()),
+                new Claim(nameof(UserInfo.ProfilePictureUrl), userInfo.ProfilePictureUrl),
+                .. userInfo.Roles.Select(roleName => new Claim(ClaimTypes.Role, roleName))
             ];
 
             authenticationStateTask = Task.FromResult(

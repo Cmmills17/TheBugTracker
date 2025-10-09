@@ -5,10 +5,11 @@ namespace TheBugTracker.Client.Services.Interfaces
     public interface IProjectDTOService
     {
         /// <summary>
-        /// Retrieves all projects in the database
+        /// Retrieves all active projects for the current user's company
         /// </summary>
         /// <returns>An Enumerable of projects</returns>
-        public Task<IEnumerable<ProjectDTO>> GetProjectsAsync(string userId);
+        /// /// <param name="user"> The current user's claims</param>
+        public Task<IEnumerable<ProjectDTO>> GetProjectsAsync(UserInfo user);
 
 
 

@@ -1,17 +1,16 @@
 ﻿@page "/projects"
-@using TheBugTracker.Client.Helpers
 @attribute [Authorize]
 @inject IProjectDTOService ProjectService 
 
-<MudContainer MaxWidth="MaxWidth.Large" Class="py-4">
-    <MudText Typo="Typo.h1">All Projects</MudText>
-    <ul>
-        @foreach(ProjectDTO project in projects)
-        {
-            <li>@project.Name</li>
-        }
 
-    </ul>
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-4 ">
+       
+    @foreach(ProjectDTO project in projects)
+    {
+        <div class="py-3">
+            <ProjectCard Project="project" />
+        </div>
+    }
 
 </MudContainer>
 
@@ -24,8 +23,7 @@
     protected override async Task OnInitializedAsync()
     {
         UserInfo? userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
-        
 
-        projects = await ProjectService.GetProjectsAsync(userInfo!.UserId);
+        projects = await ProjectService.GetProjectsAsync(userInfo!);
     }
 }

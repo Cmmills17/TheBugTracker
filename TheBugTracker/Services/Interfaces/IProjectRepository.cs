@@ -1,4 +1,5 @@
-﻿using TheBugTracker.Models;
+﻿using TheBugTracker.Client;
+using TheBugTracker.Models;
 
 namespace TheBugTracker.Services.Interfaces
 {
@@ -7,7 +8,8 @@ namespace TheBugTracker.Services.Interfaces
         /// <summary>
         /// Retrieves all projects in the database
         /// </summary>
-        public Task<IEnumerable<Project>> GetProjectsAsync(string userId);
+        /// <param name="user"> The current user's claims</param>
+        public Task<IEnumerable<Project>> GetProjectsAsync(UserInfo user);
 
     }
 }

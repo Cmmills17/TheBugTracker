@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
-using TheBugTracker.Client.Models;
+using TheBugTracker.Client;
 using TheBugTracker.Models;
 
 namespace TheBugTracker.Components.Account
@@ -88,19 +88,28 @@ namespace TheBugTracker.Components.Account
             {
                 var userId = principal.FindFirst(options.ClaimsIdentity.UserIdClaimType)?.Value;
                 var email = principal.FindFirst(options.ClaimsIdentity.EmailClaimType)?.Value;
-                var firstName = principal.FindFirst("FirstName")?.Value;
-                var lastName = principal.FindFirst("LastName")?.Value;
+                var firstName = principal.FindFirst(nameof(UserInfo.FirstName))?.Value;
+                var lastName = principal.FindFirst(nameof(UserInfo.LastName))?.Value;
                 var profilePictureUrl = principal.FindFirst(nameof(UserInfo.ProfilePictureUrl))?.Value;
+                var companyid = principal.FindFirst(nameof(UserInfo.CompanyId))?.Value;
+                var roles = principal.FindAll(ClaimTypes.Role).Select(c => c.Value);
 
-                if (userId != null && email != null && firstName != null && lastName != null && profilePictureUrl != null)
+                if (userId != null 
+                    && email != null 
+                    && firstName != null 
+                    && lastName != null 
+                    && profilePictureUrl != null 
+                    && companyid != null)
                 {
                     state.PersistAsJson(nameof(UserInfo), new UserInfo
                     {
                         UserId = userId,
                         Email = email,
-                        Firstname = firstName,
-                        Lastname = lastName,
+                        FirstName = firstName,
+                        LastName = lastName,
                         ProfilePictureUrl = profilePictureUrl,
+                        CompanyId = int.Parse(companyid),
+                        Roles = [..roles],
                     });
                 }
             }
