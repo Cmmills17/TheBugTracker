@@ -111,4 +111,16 @@ code {
     color: #c02d76;
 }
 
+.page-container {
+    height: 100%;
+    position: relative;
+}
+
+.create-btn {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+}
+
+
 /* #endregion Blazor default CSS */

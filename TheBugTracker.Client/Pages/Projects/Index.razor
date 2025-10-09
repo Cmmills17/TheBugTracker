@@ -2,15 +2,46 @@
 @attribute [Authorize]
 @inject IProjectDTOService ProjectService 
 
+<PageTitle>Active Projects | The Bug Tracker</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Large" Class="py-4 ">
-       
-    @foreach(ProjectDTO project in projects)
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container">
+ 
+    <MudBreadcrumbs Items="breadcrumbs"/>
+    @if(projects.Count() > 0)
     {
-        <div class="py-3">
-            <ProjectCard Project="project" />
+        <div class="row g-3 row-cols-1 row-cols-md-2 row-cols-xl-3">
+
+            @foreach (ProjectDTO project in projects)
+            {
+                <div class="col py-3">
+                    <ProjectCard Project="project" />
+                </div>
+            }
+
         </div>
     }
+    else
+    {
+        
+        <div class="h-100 d-flex align-items-center justify-content-center">
+            <MudText Color="Color.Tertiary" Typo="Typo.button">
+                No Active Projects Found
+            </MudText>
+        </div>
+
+    }
+
+    <AuthorizeView Roles="@($"{nameof(Role.Admin)}, {nameof(Role.ProjectManager)}")">
+
+        <MudFab Color="Color.Secondary"
+                StartIcon="@Icons.Material.Filled.Add"
+                Href="projects/create"
+                Class="create-btn" />
+
+    </AuthorizeView>
+
+
+
 
 </MudContainer>
 
@@ -19,6 +50,13 @@
     public Task<AuthenticationState> AuthStateTask { get; set; } = default!;
 
     private IEnumerable<ProjectDTO> projects = [];
+
+    private static List<BreadcrumbItem> breadcrumbs = new()
+    {
+        new BreadcrumbItem("Home", href: "/"),
+        new BreadcrumbItem("Projects", href: "/projects"),
+        new BreadcrumbItem("Active", href: null, disabled: true)
+    };
 
     protected override async Task OnInitializedAsync()
     {
