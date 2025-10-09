@@ -95,4 +95,9 @@ main {
         top: 0.5rem;
     }
 
+footer {
+    padding: 1rem;
+    background-color: var(--mud-palatte-gray-lighter);
+}
+
 

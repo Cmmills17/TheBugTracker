@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace TheBugTracker.Client.Models
 {
     // Add properties to this class and update the server and client AuthenticationStateProviders

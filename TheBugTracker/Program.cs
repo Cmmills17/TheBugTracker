@@ -2,10 +2,14 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
+using TheBugTracker.Client.Services.Interfaces;
 using TheBugTracker.Components;
 using TheBugTracker.Components.Account;
 using TheBugTracker.Data;
 using TheBugTracker.Models;
+using TheBugTracker.Services;
+using TheBugTracker.Services.Interfaces;
+using TheBugTracker.Services.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +57,10 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+
+
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<IProjectDTOService, ProjectDTOService>();
 
 
 var app = builder.Build();
