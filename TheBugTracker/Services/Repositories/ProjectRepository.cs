@@ -9,19 +9,6 @@ namespace TheBugTracker.Services.Repositories
 {
     public class ProjectRepository(IDbContextFactory<ApplicationDbContext> contextFactory) : IProjectRepository
     {
-
-
-        public async Task<IEnumerable<Project>> GetProjectsAsync(UserInfo user)
-        {
-            await using ApplicationDbContext context = contextFactory.CreateDbContext();
-            
-            IEnumerable<Project> projects = await context.Projects
-                .Where(p => p.CompanyId == user.CompanyId && p.Archive == false)
-                .ToListAsync();
-
-            return projects;
-        }
-
         public async Task<Project> CreateProjectAsync(Project project, UserInfo user)
         {
 
@@ -40,7 +27,7 @@ namespace TheBugTracker.Services.Repositories
             project.CompanyId = user.CompanyId;
             project.Created = DateTimeOffset.UtcNow;
 
-            if(isPm == true)
+            if (isPm == true)
             {
                 ApplicationUser projectManager = await context.Users.FirstAsync(u => u.Id == user.UserId);
                 project.Members.Add(projectManager);
@@ -52,5 +39,35 @@ namespace TheBugTracker.Services.Repositories
             return project;
 
         }
+
+
+        public async Task<IEnumerable<Project>> GetProjectsAsync(UserInfo user)
+        {
+            await using ApplicationDbContext context = contextFactory.CreateDbContext();
+
+            IEnumerable<Project> projects = await context.Projects
+                .Where(p => p.CompanyId == user.CompanyId && p.Archive == false)
+                .ToListAsync();
+
+            return projects;
+        }
+
+        public async Task<Project?> GetProjectByIdAsync(int id, UserInfo user)
+        {
+            
+            await using ApplicationDbContext context = contextFactory.CreateDbContext();
+
+            Project? project = await context.Projects
+                .Include(p => p.Tickets)
+                    .ThenInclude(t => t.SubmitterUser)
+                .Include(t => t.Tickets)
+                    .ThenInclude(t => t.DeveloperUser)
+                .Include(p => p.Members)
+                .FirstOrDefaultAsync(p => p.Id == id && p.CompanyId == user.CompanyId);
+
+            return project;
+        }
+
+
     }
 }
