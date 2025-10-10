@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using MudBlazor;
 using MudBlazor.Services;
 using TheBugTracker.Client.Services.Interfaces;
 using TheBugTracker.Components;
@@ -27,7 +28,10 @@ builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAu
 builder.Services.AddControllers();
 builder.Services.AddHttpClient();
 builder.Services.AddOutputCache();
-builder.Services.AddMudServices();
+builder.Services.AddMudServices(config =>
+{
+    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomLeft;
+});
 
 builder.Services.AddAuthentication(options =>
     {
