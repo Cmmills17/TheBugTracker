@@ -1,0 +1,208 @@
+﻿@page "/projects/{id:int}"
+@attribute [Authorize]
+@inject IProjectDTOService ProjectService
+@inject ISnackbar Snackbar
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="h-100">
+    <MudBreadcrumbs Items="breadcrumbs" />
+   
+        @if (project is null)
+        {
+            <PageTitle>Not Found | The Bug Tracker</PageTitle>
+
+            <div class="h-100 d-flex align-items-canter justify-content-center text-center flex-column gap-2">
+
+                <MudText Color="Color.Tertiary" 
+                          Typo="Typo.button"
+                          Style="font-size: 1.2rem">
+                    Project not found
+
+                </MudText>
+
+                <MudButton Href="/projects"
+                            Variant="Variant.Text"
+                            StartIcon="@Icons.Material.Filled.ArrowBack"
+                            Size="Size.Small">
+                    Back to projects
+                </MudButton>
+
+            </div>
+        }
+        else
+        {
+
+            <PageTitle>@project.Name | The Bug Tracker</PageTitle>
+
+            <div class="vstack gap-3">
+
+                <MudPaper Class="p-3">
+                   
+                    <MudText Typo="Typo.h5" GutterBottom>
+                   
+                        @project.Name
+
+                    </MudText>
+
+                    <div>
+
+                        <MudChip T="string" Label="true" Color="project.Priority.GetColor()" Variant="Variant.Text">
+
+                            Priority: @project.Priority.GetDisplayName()
+
+                        </MudChip>
+
+                        <MudChip Variant="Variant.Text" T="string" Label="true" Color="@(project.EndDate < DateTimeOffset.UtcNow ? Color.Error : Color.Default)" >
+
+                            @project.StartDateTime?.ToShortDateString() - @project.EndDateTime?.ToShortDateString()
+
+                        </MudChip>
+
+                    </div>
+                    @* TODO: display PM *@
+
+                </MudPaper>
+
+                <MudPaper Class="p-3">
+
+                    <MudText Typo="Typo.h6">Description</MudText>
+
+                    <MudText Typo="Typo.body1">
+                        @project.Description
+                    </MudText>
+
+                </MudPaper>
+
+                <MudPaper Class="p-3">
+                    
+                    <MudText Typo="Typo.h6">Project Members</MudText>
+                    @if(project.Members.Count == 0)
+                    {
+                        <div class="text-center p-5">
+
+                            <MudText Typo="Typo.button" Color="Color.Tertiary">
+                                No Members Assigned
+                            </MudText>
+
+
+
+                        </div>
+                    }
+                    else
+                    {
+                        @* TODO: display project members*@
+                        <span> Members go here</span>
+                    }
+
+                    
+                    <MudButton Size="Size.Small"
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.Settings">
+                        Manage team
+
+                    </MudButton>
+
+                </MudPaper>
+
+                <MudPaper Class="p-3">
+                    
+                    <MudTabs>
+
+                        <MudTabPanel Text="Open Tickets">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                        @foreach (TicketDTO ticket in project.Tickets)
+                                        {
+                                            <tr>
+                                                <td>@ticket.Title</td>
+                                                <td>@ticket.Status.GetDisplayName()</td>
+                                            </tr>
+                                        }
+                                </tbody>
+                            </table>
+                        </MudTabPanel>
+
+                        <MudTabPanel Text="Resolved Tickets">
+                            Resolved tickets go here
+                        </MudTabPanel>
+
+                        <MudTabPanel Text="Archived Tickets">
+                            Archived tickets go here
+                        </MudTabPanel>
+
+                    </MudTabs>
+
+                    <MudButton Size="Size.Small"
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.AddCircle">
+
+                               New Ticket
+                    </MudButton>
+
+                </MudPaper>
+
+            </div>
+   
+        }
+
+</MudContainer>
+
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthStateTask { get; set; } = default!;
+
+    private UserInfo? userInfo;
+    private ProjectDTO? project;
+
+    private List<BreadcrumbItem> breadcrumbs = [];
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        userInfo ??= await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+
+        try
+        {
+            project = await ProjectService.GetProjectByIdAsync(Id, userInfo!);
+
+            if (project is null)
+            {
+                breadcrumbs =
+                [
+                    new BreadcrumbItem("Home", href: "/"),
+                    new BreadcrumbItem("Projects", href: "/projects"),
+                    new BreadcrumbItem("Not Found", href: null, disabled: true)
+                ];
+            }
+            else
+            {
+                breadcrumbs =
+                [
+                    new BreadcrumbItem("Home", href: "/"),
+                    new BreadcrumbItem("Projects", href: "/projects"),
+                    new BreadcrumbItem(project.Name!, href: null, disabled: true)
+                ];
+            }
+
+        }
+        catch (Exception ex)
+        {
+
+            Console.WriteLine(ex);
+            Snackbar.Add("An error occured loading your project", Severity.Error );
+        }
+
+    }
+
+}

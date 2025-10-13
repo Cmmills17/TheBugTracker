@@ -58,18 +58,10 @@
 
                     @foreach(ProjectPriority priority in Enum.GetValues<ProjectPriority>())
                     {
-                        Color color = priority switch
-                        {
-                            ProjectPriority.Low => Color.Success,
-                            ProjectPriority.Medium => Color.Secondary,
-                            ProjectPriority.High => Color.Error,
-                            ProjectPriority.Urgent => Color.Dark,
-                            _ => Color.Default,
-
-                        };
+                        
                         <MudChip Value="priority" 
                                  Text="@priority.GetDisplayName()"
-                                 Color="color"/>
+                                 Color="priority.GetColor()"/>
                     }
 
                 </MudChipSet>
