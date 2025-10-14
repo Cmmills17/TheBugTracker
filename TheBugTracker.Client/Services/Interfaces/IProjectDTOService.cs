@@ -32,7 +32,18 @@ namespace TheBugTracker.Client.Services.Interfaces
         /// <returns>The requested project, or null if it does not exist</returns>
         public Task<ProjectDTO?> GetProjectByIdAsync(int id, UserInfo user);
 
-       
+        /// <summary>
+        /// Updates the details of a project in the databse, as long as it exists for the users company and, 
+        /// they are authorized to do so
+        /// </summary>
+        /// <remarks>
+        /// Users must be in the role of Admin or Project Manage
+        /// If the user is a project manager they must be assigned to the
+        /// project they are updating
+        /// </remarks>
+        /// <param name="project">The updated project information</param>
+        /// <param name="user">The current user's claims</param>
+        public Task UpdateProjectAsync(ProjectDTO project, UserInfo user);
 
 
     }

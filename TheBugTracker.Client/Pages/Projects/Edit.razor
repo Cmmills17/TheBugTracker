@@ -114,7 +114,7 @@
 
     private ProjectDTO? project;
 
-    private static readonly List<BreadcrumbItem> breadcrumbs = new()
+    private  List<BreadcrumbItem> breadcrumbs = new()
     {
         new BreadcrumbItem("Home", href: "/"),
         new BreadcrumbItem("Projects", href: "/projects"),
@@ -136,6 +136,16 @@
             {
                 Snackbar.Add("The selected project could not be found", Severity.Error);
             }
+            else
+            {
+                breadcrumbs = new()
+                {
+                    new BreadcrumbItem("Home", href: "/"),
+                    new BreadcrumbItem("Projects", href: "/projects"),
+                    new BreadcrumbItem(project.Name!, href: $"/projects/{project.Id}"),
+                    new BreadcrumbItem("Edit", href: null, disabled: true)
+                };
+            }
 
         }
         catch (Exception ex)
@@ -154,22 +164,27 @@
 
     private async Task HandleSubmit()
     {
+        if (project is null)
+        {
+            return;
+        }
+
         userInfo ??= await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
 
         try
         {
-            project = await ProjectService.CreateProjectAsync(project!, userInfo!);
-            Snackbar.Add($"Project '{project.Name}' was successfully created!", Severity.Success);
+            await ProjectService.UpdateProjectAsync(project, userInfo!);
+            Snackbar.Add($"Project '{project.Name}' was successfully updated!", Severity.Success);
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            Snackbar.Add("An error has occured saving your project", Severity.Error);
+            Snackbar.Add("An error has occured saving your changes", Severity.Error);
 
             return;
         }
 
-        Nav.NavigateTo("/projects");
+        Nav.NavigateTo($"/projects/{project.Id}");
     }
 
 
