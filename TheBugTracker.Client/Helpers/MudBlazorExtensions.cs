@@ -19,5 +19,34 @@ namespace TheBugTracker.Client.Helpers
             };
             return color;
         }
+
+        public static Color GetColor(this TicketPriority priority)
+        {
+            Color color = priority switch
+            {
+                TicketPriority.Low => Color.Success,
+                TicketPriority.Medium => Color.Secondary,
+                TicketPriority.High => Color.Error,
+                TicketPriority.Urgent => Color.Dark,
+                _ => Color.Default,
+            };
+            return color;
+        }
+
+        public static Color GetColor(this TicketStatus status)
+        {
+            Color color = status switch
+            {
+                TicketStatus.New => Color.Info,
+                TicketStatus.InDevelopment => Color.Primary,
+                TicketStatus.Testing => Color.Warning,
+                TicketStatus.Resolved => Color.Success,
+                _ => Color.Default,
+            };
+            return color;
+        }
+
+
+
     }
 }

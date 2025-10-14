@@ -75,7 +75,7 @@
                 <MudPaper Class="p-3">
                     
                     <MudText Typo="Typo.h6">Project Members</MudText>
-                    @if(project.Members.Count == 0)
+                    @if (project.Members.Count == 0)
                     {
                         <div class="text-center p-5">
 
@@ -108,24 +108,9 @@
                     <MudTabs>
 
                         <MudTabPanel Text="Open Tickets">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Title</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
 
-                                <tbody>
-                                        @foreach (TicketDTO ticket in project.Tickets)
-                                        {
-                                            <tr>
-                                                <td>@ticket.Title</td>
-                                                <td>@ticket.Status.GetDisplayName()</td>
-                                            </tr>
-                                        }
-                                </tbody>
-                            </table>
+                            <ProjectTicketTable Tickets="project.Tickets" />
+
                         </MudTabPanel>
 
                         <MudTabPanel Text="Resolved Tickets">
