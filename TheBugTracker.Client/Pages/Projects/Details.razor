@@ -6,7 +6,16 @@
 <MudContainer MaxWidth="MaxWidth.Large" Class="h-100">
     <MudBreadcrumbs Items="breadcrumbs" />
    
-        @if (project is null)
+        @if (loading == true)
+        {
+            <div class="h-100 d-flex flex-column align-items-center justify-content-center gap-2">
+                <MudProgressCircular Indeterminate="true" Color="Color.Primary"/>
+                <MudText Typo="Typo.button" Color="Color.Default">
+                    Loading project...
+                </MudText>
+            </div>
+        }
+        else if (project is null)
         {
             <PageTitle>Not Found | The Bug Tracker</PageTitle>
 
@@ -30,7 +39,6 @@
         }
         else
         {
-
             <PageTitle>@project.Name | The Bug Tracker</PageTitle>
 
             <div class="vstack gap-3">
@@ -109,16 +117,23 @@
 
                         <MudTabPanel Text="Open Tickets">
 
-                            <ProjectTicketTable Tickets="project.Tickets" />
+                            <ProjectTicketTable Tickets="project.Tickets.Where(t => !t.Archived && t.Status != TicketStatus.Resolved)" />
 
                         </MudTabPanel>
 
                         <MudTabPanel Text="Resolved Tickets">
-                            Resolved tickets go here
+
+                            <ProjectTicketTable Tickets="project.Tickets.Where(t => !t.Archived && t.Status == TicketStatus.Resolved)">
+
+                            </ProjectTicketTable>
                         </MudTabPanel>
 
                         <MudTabPanel Text="Archived Tickets">
-                            Archived tickets go here
+
+                            <ProjectTicketTable Tickets="project.Tickets.Where(t => t.Archived == true)" >
+
+                            </ProjectTicketTable>
+
                         </MudTabPanel>
 
                     </MudTabs>
@@ -132,8 +147,27 @@
 
                 </MudPaper>
 
+                <div class="d-flex">
+
+                    <MudButton Variant="Variant.Text" 
+                               StartIcon="@Icons.Material.Filled.ArrowBack"
+                               Href="/projects"
+                               Color="Color.Primary">
+
+                        Back to Projects
+                    </MudButton>
+
+                    <MudButton Variant="Variant.Text"
+                               StartIcon="@Icons.Material.Filled.Edit"
+                               Href="@($"projects/{project.Id}/edit")"
+                               Color="Color.Primary"
+                               Class="ms-auto">
+
+                        Edit
+                    </MudButton>
+
+                </div>
             </div>
-   
         }
 
 </MudContainer>
@@ -149,12 +183,14 @@
 
     private UserInfo? userInfo;
     private ProjectDTO? project;
+    private bool loading = true;
 
     private List<BreadcrumbItem> breadcrumbs = [];
 
 
     protected override async Task OnParametersSetAsync()
     {
+        loading = true;
         userInfo ??= await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
 
         try
@@ -179,7 +215,6 @@
                     new BreadcrumbItem(project.Name!, href: null, disabled: true)
                 ];
             }
-
         }
         catch (Exception ex)
         {
@@ -188,6 +223,7 @@
             Snackbar.Add("An error occured loading your project", Severity.Error );
         }
 
+        loading = false;
     }
 
 }
