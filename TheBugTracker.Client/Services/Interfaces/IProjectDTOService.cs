@@ -45,6 +45,17 @@ namespace TheBugTracker.Client.Services.Interfaces
         /// <param name="user">The current user's claims</param>
         public Task UpdateProjectAsync(ProjectDTO project, UserInfo user);
 
+        /// <summary>
+        /// Archives a prokect to market as inactive. This method will aslo
+        /// archive all of the tickets associated with the project
+        /// </summary>
+        /// <remarks>
+        /// Projects may only be archived by admins of the project's company 
+        /// or the project manager assigned to the project
+        /// </remarks>
+        /// <param name="projectId">The ID of the project to archive</param>
+        /// <param name="user">The claims of the current user</param>
+        public Task ArchiveProjectAsync(int projectId, UserInfo user);
 
     }
 }

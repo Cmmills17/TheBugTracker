@@ -43,13 +43,28 @@
 
             <div class="vstack gap-3">
 
+                @* project Header *@
                 <MudPaper Class="p-3">
-                   
-                    <MudText Typo="Typo.h5" GutterBottom>
-                   
-                        @project.Name
 
-                    </MudText>
+                   <div class="d-flex">
+
+                        <MudText Typo="Typo.h5" Class="me-auto" GutterBottom>
+
+                            @project.Name
+
+                        </MudText>
+
+                        @if (project.Archive == true)
+                        {
+                            <MudChip T="string"
+                                     Color="Color.Error"
+                                     Size="Size.Small">
+
+                                Archived
+                            </MudChip>
+                        }
+                   </div>
+
 
                     <div>
 
@@ -70,6 +85,7 @@
 
                 </MudPaper>
 
+                @* description *@
                 <MudPaper Class="p-3">
 
                     <MudText Typo="Typo.h6">Description</MudText>
@@ -80,6 +96,7 @@
 
                 </MudPaper>
 
+                @* project members *@
                 <MudPaper Class="p-3">
                     
                     <MudText Typo="Typo.h6">Project Members</MudText>
@@ -111,28 +128,36 @@
 
                 </MudPaper>
 
+                @* project Tickets *@
                 <MudPaper Class="p-3">
                     
                     <MudTabs>
 
                         <MudTabPanel Text="Open Tickets">
-
-                            <ProjectTicketTable Tickets="project.Tickets.Where(t => !t.Archived && t.Status != TicketStatus.Resolved)" />
+                            @if(project.Archive)
+                            {
+                                @* 
+                                    if the project is archived, "open" tickets are the tickets
+                                    which were marked as archived by the project (AKA ArchivedByProject = true)
+                                *@
+                                <ProjectTicketTable Tickets="project.Tickets.Where(t => t.ArchivedByProject && t.Status != TicketStatus.Resolved)" />
+                            }
+                            else
+                            {
+                                <ProjectTicketTable Tickets="project.Tickets.Where(t => !t.Archived && t.Status != TicketStatus.Resolved)" />
+                            }
 
                         </MudTabPanel>
 
                         <MudTabPanel Text="Resolved Tickets">
 
-                            <ProjectTicketTable Tickets="project.Tickets.Where(t => !t.Archived && t.Status == TicketStatus.Resolved)">
+                            <ProjectTicketTable Tickets="project.Tickets.Where(t => (project.Archive ? t.ArchivedByProject : !t.Archived) && t.Status == TicketStatus.Resolved)" />
 
-                            </ProjectTicketTable>
                         </MudTabPanel>
 
                         <MudTabPanel Text="Archived Tickets">
 
-                            <ProjectTicketTable Tickets="project.Tickets.Where(t => t.Archived == true)" >
-
-                            </ProjectTicketTable>
+                            <ProjectTicketTable Tickets="project.Tickets.Where(t => project.Archive ? !t.ArchivedByProject : t.Archived == true)" />
 
                         </MudTabPanel>
 
@@ -147,6 +172,7 @@
 
                 </MudPaper>
 
+                @* project controls *@
                 <div class="d-flex">
 
                     <MudButton Variant="Variant.Text" 
@@ -166,11 +192,67 @@
                         Edit
                     </MudButton>
 
+                    @if(project.Archive)
+                    {
+                        <MudButton Variant="Variant.Text"
+                                   StartIcon="@Icons.Material.Filled.RestoreFromTrash"
+                                   Color="Color.Success"
+                                   OnClick="ConfirmToggleArchive">
+                            Restore
+                        </MudButton>
+                    }
+                    else
+                    {
+                        <MudButton Variant="Variant.Text"
+                                   StartIcon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error"
+                                   OnClick="ConfirmToggleArchive">
+                            Archive
+                        </MudButton>
+                    }
+                    
+
                 </div>
+
             </div>
+
+
+            <MudMessageBox @ref="archiveConfirmationBox"
+                           Title="@(project.Archive ? "Restore Project" : "Archive Project")"
+                           CancelText="Cancel">
+
+                   <MessageContent>
+                       Are you sure you want to @(project.Archive ? "restore" : "archive") this project?
+                   </MessageContent>
+
+                   <YesButton>
+                       @if(project.Archive)
+                       {
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Success"
+                                       StartIcon="@Icons.Material.Filled.RestoreFromTrash"
+                                       Class="ms-2"
+                                       OnClick="HandleToggleArchive">
+                                Restore
+                            </MudButton>
+                       }
+                       else
+                       {
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Error"
+                                       StartIcon="@Icons.Material.Filled.Delete"
+                                       Class="ms-2"
+                                       OnClick="HandleToggleArchive">
+                                Archive
+                            </MudButton>
+                       }
+                   </YesButton>
+            </MudMessageBox>
+
         }
 
 </MudContainer>
+
 
 
 @code {
@@ -187,6 +269,7 @@
 
     private List<BreadcrumbItem> breadcrumbs = [];
 
+    private MudMessageBox? archiveConfirmationBox;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -224,6 +307,48 @@
         }
 
         loading = false;
+    }
+
+    private async Task ConfirmToggleArchive()
+    {
+        if (archiveConfirmationBox is not null)
+        {
+            await archiveConfirmationBox.ShowAsync();
+        }
+    }
+
+    private async Task HandleToggleArchive()
+    {
+
+        if(project is null)
+        {
+            return;
+        }
+
+
+        try
+        {
+            if(project.Archive)
+            {
+                // TODO: restore project
+                throw new NotImplementedException("restore project not yet implemented");
+            }
+            else
+            {
+                // Archive the project
+                await ProjectService.ArchiveProjectAsync(project.Id, userInfo!);
+            }
+
+            // Refresh the info on the page
+            project = await ProjectService.GetProjectByIdAsync(project.Id, userInfo!);
+            Snackbar.Add($"The project has successfully been {(project!.Archive ? "archived" : "restored")}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            Snackbar.Add("An error occured attempting to archive/restore this project", Severity.Error);
+        }
+
     }
 
 }

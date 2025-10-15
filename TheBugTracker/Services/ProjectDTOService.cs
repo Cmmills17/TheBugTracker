@@ -65,8 +65,15 @@ namespace TheBugTracker.Services
             dbProject.EndDate = project.EndDate ?? dbProject.EndDate;
             dbProject.Priority = project.Priority;
 
-            throw new NotImplementedException();
+            await repository.UpdateProjectAsync(dbProject, user);
         }
+
+        public async Task ArchiveProjectAsync(int projectId, UserInfo user)
+        {
+            await repository.ArchiveProjectAsync(projectId, user);
+        }
+
+
 
     }
 }
