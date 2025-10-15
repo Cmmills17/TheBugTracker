@@ -56,5 +56,18 @@ namespace TheBugTracker.Services.Interfaces
         /// <param name="projectId">The ID of the project to archive</param>
         /// <param name="user">The claims of the current user</param>
         public Task ArchiveProjectAsync(int projectId, UserInfo user);
+
+        /// <summary>
+        /// Restore a prokect to market as active. This method will aslo
+        /// restore all of the tickets associated with the project which
+        /// were not previously archived.
+        /// </summary>
+        /// <remarks>
+        /// Projects may only be restored by admins of the project's company 
+        /// or the project manager assigned to the project
+        /// </remarks>
+        /// <param name="projectId">The ID of the project to restore</param>
+        /// <param name="user">The claims of the current user</param>
+        public Task RestoreProjectAsync(int projectId, UserInfo user);
     }
 }

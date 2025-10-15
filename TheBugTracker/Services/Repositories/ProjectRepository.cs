@@ -117,6 +117,35 @@ namespace TheBugTracker.Services.Repositories
             await context.SaveChangesAsync();
         }
 
+        public async Task RestoreProjectAsync(int projectId, UserInfo user)
+        {
+            bool canEditProject = await CanUserEditProject(projectId, user);
+
+            if (canEditProject == false)
+            {
+                return;
+            }
+
+            await using ApplicationDbContext context = contextFactory.CreateDbContext();
+
+            Project project = await context.Projects
+                       .Include(p => p.Tickets)
+                       .FirstAsync(p => p.Id == projectId && p.CompanyId == user.CompanyId);
+
+            project.Archive = false;
+
+            foreach (Ticket ticket in project.Tickets)
+            {
+                // if archiveByProject == true, the ticket should no longer be archived
+                // if ArchivedByProject == false, the ticket was archived before the project and so
+                // should remain archived
+                ticket.Archived = !ticket.ArchivedByProject;
+                ticket.ArchivedByProject = false;
+            }
+
+            await context.SaveChangesAsync();
+        }
+
         /// <summary>
         /// Checks that the project exists, that it belongs to the user's company,
         /// and the user is either an admin or the project manager

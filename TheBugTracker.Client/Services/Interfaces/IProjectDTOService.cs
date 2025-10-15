@@ -46,7 +46,7 @@ namespace TheBugTracker.Client.Services.Interfaces
         public Task UpdateProjectAsync(ProjectDTO project, UserInfo user);
 
         /// <summary>
-        /// Archives a prokect to market as inactive. This method will aslo
+        /// Archives a project to market as inactive. This method will aslo
         /// archive all of the tickets associated with the project
         /// </summary>
         /// <remarks>
@@ -57,5 +57,17 @@ namespace TheBugTracker.Client.Services.Interfaces
         /// <param name="user">The claims of the current user</param>
         public Task ArchiveProjectAsync(int projectId, UserInfo user);
 
+        /// <summary>
+        /// Restores a project to market as active. This method will aslo
+        /// restore all of the tickets associated with the project that
+        /// were not previously archived
+        /// </summary>
+        /// <remarks>
+        /// Projects may only be restored by admins of the project's company 
+        /// or the project manager assigned to the project
+        /// </remarks>
+        /// <param name="projectId">The ID of the project to restore</param>
+        /// <param name="user">The claims of the current user</param>
+        public Task RestoreProjectAsync(int projectId, UserInfo user);
     }
 }

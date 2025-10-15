@@ -330,8 +330,8 @@
         {
             if(project.Archive)
             {
-                // TODO: restore project
-                throw new NotImplementedException("restore project not yet implemented");
+                // Restore the project if it is archived
+                await ProjectService.RestoreProjectAsync(project.Id, userInfo!);
             }
             else
             {
@@ -341,7 +341,7 @@
 
             // Refresh the info on the page
             project = await ProjectService.GetProjectByIdAsync(project.Id, userInfo!);
-            Snackbar.Add($"The project has successfully been {(project!.Archive ? "archived" : "restored")}");
+            Snackbar.Add($"The project has successfully been {(project!.Archive ? "archived" : "restored")}", Severity.Success);
         }
         catch (Exception ex)
         {
