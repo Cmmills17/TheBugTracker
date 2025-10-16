@@ -1,8 +1,12 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using MudBlazor;
 using MudBlazor.Services;
+using Scalar.AspNetCore;
+using Swashbuckle.AspNetCore.Filters;
+using System.Reflection;
 using TheBugTracker.Client.Services.Interfaces;
 using TheBugTracker.Components;
 using TheBugTracker.Components.Account;
@@ -18,6 +22,59 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
+
+builder.Services.AddSwaggerGen(options =>
+{
+    // swagger doc details
+    options.SwaggerDoc("v1", new()
+    {
+
+        Title = "The BugBox API",
+        Version = "v1",
+        Description = """
+                      <img src="/img/Logo Transparent white.png" />
+
+                      This API is used by The Bug Tracker application when
+                      executing in WebAssembly to interact with the backend.
+
+                      If you think this project is interesting or would like to check out
+                      the rest of my work, you can check out [my portfolio](https://cameronmills.netlify.app/)!
+
+                      This API uses cookie-based authentication. To test the requests
+                      below, you must first log in through the application to set a 
+                      cookie in your browser and revieve a valid response from the 
+                      "Test Request" buttons below.
+                      """,
+        Contact = new()
+        {
+            Name = "Cameron Mills",
+            Email = "Cameronmills0713@gmail.com",
+            Url = new("https://cameronmills.netlify.app/"),
+        }
+
+    });
+
+    // show cookies as the suthentication scheme
+    options.AddSecurityDefinition("cookie", new OpenApiSecurityScheme
+    {
+        Name = ".AspNetCore.Identity.Application",
+        In = ParameterLocation.Cookie,
+        Type = SecuritySchemeType.Http,
+        Scheme = "cookie",
+    });
+
+    // show which endpoints require login
+    options.OperationFilter<SecurityRequirementsOperationFilter>();
+
+    // generate documentation for endpoints from XML comments
+    var xmlFileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFileName));
+
+    // exclude docmentation for the built-in account endpoints
+    options.DocInclusionPredicate((_, description) => 
+        description.RelativePath is null || !description.RelativePath.StartsWith("Account"));
+});
+
 
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
@@ -88,6 +145,14 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+app.UseSwagger(options => options.RouteTemplate = "/openapi/{documentName}.json");
+app.MapScalarApiReference(options =>
+{
+    options.WithFavicon("/img/bugtrackerNew.png")
+           .WithTitle("API Specification | BugBox")
+           .WithTheme(ScalarTheme.BluePlanet);
+}); // URL: /scalar/v1
 
 app.UseHttpsRedirection();
 
