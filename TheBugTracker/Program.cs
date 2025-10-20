@@ -95,7 +95,31 @@ builder.Services.AddAuthentication(options =>
         options.DefaultScheme = IdentityConstants.ApplicationScheme;
         options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
     })
-    .AddIdentityCookies();
+    .AddIdentityCookies(cookieBuilder =>
+    {
+        cookieBuilder.ApplicationCookie!.Configure(config =>
+        {
+            config.Events.OnRedirectToLogin += (context) =>
+            {
+                if (context.Request.Path.StartsWithSegments("/api") || context.Request.HasJsonContentType())
+                {
+                    context.Response.StatusCode = 401;
+                }
+
+                return Task.CompletedTask;
+            };
+
+            config.Events.OnRedirectToAccessDenied += (context) =>
+            {
+                if (context.Request.Path.StartsWithSegments("/api") || context.Request.HasJsonContentType())
+                {
+                    context.Response.StatusCode = 403;
+                }
+
+                return Task.CompletedTask;
+            };
+        });
+    });
 
 var connectionString = DataUtility.GetConnectionString(builder.Configuration) 
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -147,6 +171,7 @@ else
 }
 
 app.UseSwagger(options => options.RouteTemplate = "/openapi/{documentName}.json");
+
 app.MapScalarApiReference(options =>
 {
     options.WithFavicon("/img/bugtrackerNew.png")
