@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor;
 using MudBlazor.Services;
 using TheBugTracker.Client;
+using TheBugTracker.Client.Services;
+using TheBugTracker.Client.Services.Interfaces;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -19,5 +21,7 @@ builder.Services.AddMudServices(config =>
 {
     config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomLeft;
 });
+
+builder.Services.AddScoped<IProjectDTOService, WASMProjectDTOService>();
 
 await builder.Build().RunAsync();
