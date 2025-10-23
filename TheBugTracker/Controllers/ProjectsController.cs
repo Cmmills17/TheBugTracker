@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using TheBugTracker.Client;
 using TheBugTracker.Client.Helpers;
 using TheBugTracker.Client.Models;
+using TheBugTracker.Client.Models.Enums;
 using TheBugTracker.Client.Services.Interfaces;
 
 namespace TheBugTracker.Controllers
@@ -66,6 +67,7 @@ namespace TheBugTracker.Controllers
         /// <param name="project"> The details of the project to be created</param>
         /// <returns></returns>
         [HttpPost]
+        [Authorize(Roles = $"{nameof(Role.Admin)}, {nameof(Role.ProjectManager)}")]
         public async Task<ActionResult<ProjectDTO>> CreateProject([FromBody] ProjectDTO project)
         {
             ProjectDTO createdProject = await projectService.CreateProjectAsync(project, UserInfo);
@@ -76,5 +78,31 @@ namespace TheBugTracker.Controllers
                 value: createdProject
             );
         }
+
+
+        /// <summary>
+        /// Update Project
+        /// </summary>
+        /// <remarks>
+        /// Update the details of a specific project, if it exists.
+        /// 
+        /// Users must be an admin or the project manager assigned to the
+        /// project to submit an update.
+        /// </remarks>
+        /// <param name="projectId">The ID of the project to update</param>
+        /// <param name="project">The updated details for this project</param>
+        [HttpPut("{projectId:int}")] //api/Projects/8
+        [Authorize(Roles = $"{nameof(Role.Admin)}, {nameof(Role.ProjectManager)}")]
+        public async Task<IActionResult> UpdateProject([FromRoute] int projectId, [FromBody] ProjectDTO project)
+        {
+            if (projectId != project.Id)
+            {
+                return BadRequest();
+            }
+
+            await projectService.UpdateProjectAsync(project, UserInfo);
+            return NoContent();
+        }
+
     }
 }
