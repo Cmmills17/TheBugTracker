@@ -56,15 +56,20 @@ namespace TheBugTracker.Client.Services
 
         }
 
-        public Task ArchiveProjectAsync(int projectId, UserInfo user)
+        public async Task ArchiveProjectAsync(int projectId, UserInfo user)
         {
-            throw new NotImplementedException();
+            var response = await http.PatchAsync($"api/Projects/{projectId}/archive", null);
+            response.EnsureSuccessStatusCode();
+
         }
 
-        public Task RestoreProjectAsync(int projectId, UserInfo user)
+        public async Task RestoreProjectAsync(int projectId, UserInfo user)
         {
-            throw new NotImplementedException();
+            var response = await http.PatchAsync($"api/Projects/{projectId}/restore", null);
+            response.EnsureSuccessStatusCode();
         }
+
+
 
     }
 }

@@ -1,4 +1,5 @@
 ﻿@page "/"
+@inject ICompanyDTOService  CompanyService
 
 <PageTitle>Home</PageTitle>
 <!-- Page Background -->
@@ -44,3 +45,31 @@
     <MudButton Color="Color.Dark" Variant="Variant.Text">Dark Button</MudButton>
 
 </MudPaper>
+
+<ul>
+    @foreach (UserDTO user in users)
+    {
+       <li>@user.FullName - @(user.Role?.GetDisplayName() ?? "Unknown Role")</li>
+    }
+</ul>
+
+
+@code
+{
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthStateTask { get; set; } = default!;
+
+    IEnumerable<UserDTO> users = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+
+        if(userInfo is not null)
+        {
+            users = await CompanyService.GetUsersAsync(userInfo);
+
+        }
+    }
+
+}

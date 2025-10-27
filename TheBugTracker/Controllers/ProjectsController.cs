@@ -104,5 +104,43 @@ namespace TheBugTracker.Controllers
             return NoContent();
         }
 
+
+
+        /// <summary>
+        /// Archive Project
+        /// </summary>
+        /// <remarks>
+        /// Archive a project to indicate it is no longer being worked on.
+        /// 
+        /// Only admins or the project manager assigned to the project
+        /// may archive a project
+        /// </remarks>
+        /// <param name="projectId">The ID of the project to archive</param>
+        [HttpPatch("{projectId:int}/archive")]
+        [Authorize(Roles = $"{nameof(Role.Admin)}, {nameof(Role.ProjectManager)}")]
+        public async Task<IActionResult> ArchiveProject([FromRoute] int projectId)
+        {
+            await projectService.ArchiveProjectAsync(projectId, UserInfo);
+            return NoContent();
+        }
+
+
+        /// <summary>
+        /// Restore Project
+        /// </summary>
+        /// <remarks>
+        /// Restore a project to indicate it is active and work will resume. 
+        /// 
+        /// Only admins or the project manager assigned to the project
+        /// may restore a project
+        /// </remarks>
+        /// <param name="projectId">The ID of the project to restore</param>
+        [HttpPatch("{projectId:int}/restore")]
+        [Authorize(Roles = $"{nameof(Role.Admin)}, {nameof(Role.ProjectManager)}")]
+        public async Task<IActionResult> RestoreProject([FromRoute] int projectId)
+        {
+            await projectService.RestoreProjectAsync(projectId, UserInfo);
+            return NoContent();
+        }
     }
 }
