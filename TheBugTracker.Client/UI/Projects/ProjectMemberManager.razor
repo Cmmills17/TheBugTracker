@@ -10,68 +10,48 @@
             <div >
 
                 <MudText Typo="Typo.h6" GutterBottom>Developers</MudText>
-                @foreach(UserDTO developer in developers)
-                {
-                    <MudChip T="string">
 
-                        <AvatarContent>
+                <MudChipSet @bind-SelectedValues="selectedDeveloperIds"
+                            SelectionMode="SelectionMode.MultiSelection">
 
-                            <MudAvatar>
-
-                               <MudImage Src="@developer.ImageUrl" />
-
-                            </MudAvatar>
-
-                        </AvatarContent>
-
-                        <ChildContent>
-
-                            @developer.FullName
-
-                        </ChildContent>
-
-                    </MudChip>
-                }
+                    @foreach (UserDTO developer in developers)
+                    {
+                        <UserChip User="developer" />
+                    }
+                </MudChipSet>
+                
 
             </div>
+
 
             <div >
                 <MudText Typo="Typo.h6" GutterBottom>Submitters</MudText>
-                @foreach (UserDTO submitter in submitters)
-                {
-                    <MudChip T="string">
+                <MudChipSet @bind-SelectedValues="selectedSubmitterIds"
+                            SelectionMode="SelectionMode.MultiSelection">
 
-                        <AvatarContent>
+                    @foreach (UserDTO submitter in submitters)
+                    {
+                        <UserChip User="submitter" />
+                    }
+                        
+                </MudChipSet>
 
-                            <MudAvatar>
-
-                                <MudImage Src="@submitter.ImageUrl" />
-
-                            </MudAvatar>
-
-                        </AvatarContent>
-
-                        <ChildContent>
-
-                            @submitter.FullName
-
-                        </ChildContent>
-
-                    </MudChip>
-                }
             </div>
+
 
             <div class="text-end">
 
                 <MudButton Variant="Variant.Text"
                             Color="Color.Error"
-                            StartIcon="@Icons.Material.Filled.Cancel">
+                            StartIcon="@Icons.Material.Filled.Cancel"
+                            OnClick="HandleCancel">
                     Cancel
                 </MudButton>
 
                 <MudButton Variant="Variant.Filled"
                            Color="Color.Primary"
-                           StartIcon="@Icons.Material.Filled.Save">
+                           StartIcon="@Icons.Material.Filled.Save"
+                           OnClick="HandleSave">
                     Save
                 </MudButton>
 
@@ -95,6 +75,9 @@
     private IEnumerable<UserDTO> developers = [];
     private IEnumerable<UserDTO> submitters = [];
 
+    private IReadOnlyCollection<string> selectedDeveloperIds = [];
+    private IReadOnlyCollection<string> selectedSubmitterIds = [];
+
     protected override async Task OnParametersSetAsync()
     {
         userInfo ??= await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
@@ -111,5 +94,25 @@
         }
     }
 
+    private void HandleCancel()
+    {
+        selectedDeveloperIds = [];
+        selectedSubmitterIds = [];
+    }
+
+    private async Task HandleSave()
+    {
+        try
+        {
+            // TODO: actually save these changes
+            Console.WriteLine($"developers: {string.Join(",", selectedDeveloperIds)}");
+            Console.WriteLine($"submitters: {string.Join(",", selectedSubmitterIds)}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            Snackbar.Add("Failed to save changes", Severity.Error);
+        }
+    }
 
 }
