@@ -100,7 +100,10 @@
                 <MudPaper Class="p-3">
                     
                     <MudText Typo="Typo.h6">Project Members</MudText>
-                    @if (project.Members.Count == 0)
+
+                    <ProjectMemberManager Project="project" />
+                    
+@*                     @if (project.Members.Count == 0)
                     {
                         <div class="text-center p-5">
 
@@ -108,15 +111,12 @@
                                 No Members Assigned
                             </MudText>
 
-
-
                         </div>
                     }
                     else
                     {
-                        @* TODO: display project members*@
                         <span> Members go here</span>
-                    }
+                    } *@
 
                     
                     <MudButton Size="Size.Small"

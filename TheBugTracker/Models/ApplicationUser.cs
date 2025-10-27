@@ -52,6 +52,7 @@ namespace TheBugTracker.Models
 
         public static async  Task<UserDTO> ToDTOWithRole(this ApplicationUser user, UserManager<ApplicationUser> userManager)
         {
+            
             UserDTO dto = user.ToDTO();
 
             var roleNames = await userManager.GetRolesAsync(user);

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using TheBugTracker.Client;
 using TheBugTracker.Client.Models.Enums;
 using TheBugTracker.Data;
@@ -7,7 +8,8 @@ using TheBugTracker.Services.Interfaces;
 
 namespace TheBugTracker.Services.Repositories
 {
-    public class CompanyRepository(IDbContextFactory<ApplicationDbContext> contextFactory) : ICompanyRepository
+    public class CompanyRepository(IDbContextFactory<ApplicationDbContext> contextFactory,
+                                   UserManager<ApplicationUser> userManager ) : ICompanyRepository
     {
         public async Task<IEnumerable<ApplicationUser>> GetUsersAsync(UserInfo userInfo)
         {
@@ -20,9 +22,13 @@ namespace TheBugTracker.Services.Repositories
             return users;
         }
 
-        public Task<IEnumerable<ApplicationUser>> GetUsersInRoleAsync(Role role, UserInfo userInfo)
+        public async Task<IEnumerable<ApplicationUser>> GetUsersInRoleAsync(Role role, UserInfo userInfo)
         {
-            throw new NotImplementedException();
+            IEnumerable<ApplicationUser> usersInRole = await userManager.GetUsersInRoleAsync(Enum.GetName(role)!);
+
+            usersInRole = usersInRole.Where(u => u.CompanyId == userInfo.CompanyId);
+
+            return usersInRole;
         }
     }
 }

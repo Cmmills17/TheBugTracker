@@ -25,9 +25,21 @@ namespace TheBugTracker.Services
             return dtos;
         }
 
-        public Task<IEnumerable<UserDTO>> GetUsersInRoleAsync(Role role, UserInfo userInfo)
+        public async Task<IEnumerable<UserDTO>> GetUsersInRoleAsync(Role role, UserInfo userInfo)
         {
-            throw new NotImplementedException();
+            var usersInRole = await repository.GetUsersInRoleAsync(role, userInfo);
+
+            List<UserDTO> dtos = [];
+
+            foreach (ApplicationUser user in usersInRole)
+            {
+                UserDTO dto = user.ToDTO();
+                dto.Role = role;
+
+                dtos.Add(dto);
+            }
+
+            return dtos;
         }
     }
 }
