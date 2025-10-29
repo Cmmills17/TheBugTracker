@@ -109,12 +109,15 @@
                                     No Members Assigned
                                 </MudText>
 
-                            </div>
-                        }
-                        else
-                        {
-                            <span> Members go here</span>
-                        } 
+                    </div>
+                }
+                else
+                {
+                    foreach(UserDTO member in project.Members)
+                    {
+                        <div>@member.FullName</div>
+                    }
+                } 
                    
 
                     
