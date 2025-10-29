@@ -100,28 +100,28 @@
                 <MudPaper Class="p-3">
                     
                     <MudText Typo="Typo.h6">Project Members</MudText>
+                                        
+                        @if (project.Members.Count == 0)
+                        {
+                            <div class="text-center p-5">
 
-                    <ProjectMemberManager Project="project" />
-                    
-@*                     @if (project.Members.Count == 0)
-                    {
-                        <div class="text-center p-5">
+                                <MudText Typo="Typo.button" Color="Color.Tertiary">
+                                    No Members Assigned
+                                </MudText>
 
-                            <MudText Typo="Typo.button" Color="Color.Tertiary">
-                                No Members Assigned
-                            </MudText>
-
-                        </div>
-                    }
-                    else
-                    {
-                        <span> Members go here</span>
-                    } *@
+                            </div>
+                        }
+                        else
+                        {
+                            <span> Members go here</span>
+                        } 
+                   
 
                     
                     <MudButton Size="Size.Small"
                                Color="Color.Primary"
-                               StartIcon="@Icons.Material.Filled.Settings">
+                               StartIcon="@Icons.Material.Filled.Settings"
+                               OnClick="() => projectMemberDialogVisible = true">
                         Manage team
 
                     </MudButton>
@@ -249,6 +249,23 @@
                    </YesButton>
             </MudMessageBox>
 
+            <MudDialog @bind-Visible="projectMemberDialogVisible">
+
+                <TitleContent>
+                    <MudText Typo="Typo.h5">
+                        Manage Project Team
+                    </MudText>
+
+                </TitleContent>
+                
+                <DialogContent>
+
+                    <ProjectMemberManager Project="project" />
+
+                </DialogContent>
+
+            </MudDialog>
+
         }
 
 </MudContainer>
@@ -266,6 +283,7 @@
     private UserInfo? userInfo;
     private ProjectDTO? project;
     private bool loading = true;
+    private bool projectMemberDialogVisible = false;
 
     private List<BreadcrumbItem> breadcrumbs = [];
 

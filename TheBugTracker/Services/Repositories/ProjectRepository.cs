@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using TheBugTracker.Client;
 using TheBugTracker.Client.Models.Enums;
 using TheBugTracker.Data;
@@ -7,7 +8,8 @@ using TheBugTracker.Services.Interfaces;
 
 namespace TheBugTracker.Services.Repositories
 {
-    public class ProjectRepository(IDbContextFactory<ApplicationDbContext> contextFactory) : IProjectRepository
+    public class ProjectRepository(IDbContextFactory<ApplicationDbContext> contextFactory,
+                                    UserManager<ApplicationUser> userManager) : IProjectRepository
     {
         public async Task<IEnumerable<Project>> GetProjectsAsync(UserInfo user)
         {
@@ -145,6 +147,55 @@ namespace TheBugTracker.Services.Repositories
 
             await context.SaveChangesAsync();
         }
+
+        public async Task AddProjectMemberAsync(int projectId, string userId, UserInfo user)
+        {
+            // Is this user allowed to assign members to this project?
+            bool canEditProject = await CanUserEditProject(projectId, user);
+            
+            if (canEditProject == false)
+            {
+                return;
+            }
+
+
+            await using ApplicationDbContext context = contextFactory.CreateDbContext();
+           
+            Project project = await context.Projects
+                                            .Include(p => p.Members)
+                                            .FirstAsync(p => p.Id == projectId);
+            
+            // are they already assigned this project
+            if(project.Members.Any(m => m.Id == userId))
+            {
+                return;
+            }
+
+            // does the user exists?
+            // does the user belong to the same company?
+            // is the user a project member or admin?
+            ApplicationUser? newMember = await context.Users
+                .Where(u => u.CompanyId == user.CompanyId)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (newMember == null
+                || await userManager.IsInRoleAsync(newMember, nameof(Role.ProjectManager))
+                || await userManager.IsInRoleAsync(newMember, nameof(Role.Admin)))
+            {
+                return;
+            }
+
+            //assign the user to the project and save to the DB
+            project.Members.Add(newMember);
+            await context.SaveChangesAsync();
+
+        }
+
+        public Task RemoveProjectMemberAsync(int projectId, string userId, UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
+
 
         /// <summary>
         /// Checks that the project exists, that it belongs to the user's company,

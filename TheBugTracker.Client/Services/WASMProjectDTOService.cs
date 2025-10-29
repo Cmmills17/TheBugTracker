@@ -69,7 +69,14 @@ namespace TheBugTracker.Client.Services
             response.EnsureSuccessStatusCode();
         }
 
+        public Task AddProjectMemberAsync(int projectId, string userId, UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
 
-
+        public Task RemoveProjectMemberAsync(int projectId, string userId, UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿@inject ICompanyDTOService CompanyService
 @inject ISnackbar Snackbar
+@inject IProjectDTOService ProjectService
 
 @if (Project is not null)
 {
@@ -102,11 +103,20 @@
 
     private async Task HandleSave()
     {
+        if(Project is null || userInfo is null)
+        {
+            return;
+        }
+
         try
         {
             // TODO: actually save these changes
-            Console.WriteLine($"developers: {string.Join(",", selectedDeveloperIds)}");
-            Console.WriteLine($"submitters: {string.Join(",", selectedSubmitterIds)}");
+            IEnumerable<string> selectedUserIds = [.. selectedDeveloperIds, .. selectedSubmitterIds];
+
+            foreach (string userId in selectedUserIds)
+            {
+                await ProjectService.AddProjectMemberAsync(Project.Id, userId, userInfo);
+            }
         }
         catch (Exception ex)
         {

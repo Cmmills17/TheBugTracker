@@ -28,4 +28,8 @@
     <Folder Include="wwwroot\js\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\TheBugTracker.Client\Pages\Projects\DialogContent.razor" Link="DialogContent.razor" />
+  </ItemGroup>
+
 </Project>
