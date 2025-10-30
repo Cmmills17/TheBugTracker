@@ -191,9 +191,32 @@ namespace TheBugTracker.Services.Repositories
 
         }
 
-        public Task RemoveProjectMemberAsync(int projectId, string userId, UserInfo user)
+        public async Task RemoveProjectMemberAsync(int projectId, string userId, UserInfo user)
         {
-            throw new NotImplementedException();
+            bool canEdit = await CanUserEditProject(projectId, user);
+
+            if(!canEdit)
+            {
+                return;
+            }
+
+            await using ApplicationDbContext context = contextFactory.CreateDbContext();
+
+            Project project = await context.Projects
+                        .Include(p => p.Members)
+                        .FirstAsync (p => p.Id == projectId);
+
+            ApplicationUser? member = project.Members.FirstOrDefault(m => m.Id == userId);
+
+            if (member is null
+                || await userManager.IsInRoleAsync(member, nameof(Role.ProjectManager)))
+            {
+                return;
+            }
+
+            project.Members.Remove(member);
+            await context.SaveChangesAsync();
+
         }
 
 

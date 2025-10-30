@@ -3,9 +3,9 @@ using TheBugTracker.Client.Models;
 using TheBugTracker.Client.Services.Interfaces;
 using TheBugTracker.Services.Interfaces;
 using TheBugTracker.Models;
-
 using Project = TheBugTracker.Models.Project;
 using TheBugTracker.Client;
+
 namespace TheBugTracker.Services
 {
     public class ProjectDTOService(IProjectRepository repository) : IProjectDTOService

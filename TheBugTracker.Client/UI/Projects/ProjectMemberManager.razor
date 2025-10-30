@@ -69,6 +69,9 @@
     [Parameter, EditorRequired]
     public ProjectDTO? Project { get; set; }
 
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
     [CascadingParameter]
     public Task<AuthenticationState> AuthStateTask { get; set; } = default!;
     private UserInfo? userInfo;
@@ -78,15 +81,23 @@
 
     private IReadOnlyCollection<string> selectedDeveloperIds = [];
     private IReadOnlyCollection<string> selectedSubmitterIds = [];
+    private IEnumerable<string> originalMembersIds = [];
 
     protected override async Task OnParametersSetAsync()
     {
         userInfo ??= await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+        originalMembersIds = Project?.Members.Select(m => m.Id) ?? [];
 
         try
         {
+            // get all available devs/submitters
             developers = await CompanyService.GetUsersInRoleAsync(Role.Developer, userInfo!);
             submitters = await CompanyService.GetUsersInRoleAsync(Role.Submitter, userInfo!);
+
+            // preselect the current users
+            selectedDeveloperIds = [..developers.Select(d => d.Id).Where(id => originalMembersIds.Contains(id))];
+            selectedSubmitterIds = [.. submitters.Select(s => s.Id).Where(id => originalMembersIds.Contains(id))];
+
         }
         catch (Exception ex)
         {
@@ -95,10 +106,12 @@
         }
     }
 
-    private void HandleCancel()
+    private async Task HandleCancel()
     {
-        selectedDeveloperIds = [];
-        selectedSubmitterIds = [];
+        selectedDeveloperIds = [.. developers.Select(d => d.Id).Where(id => originalMembersIds.Contains(id))];
+        selectedSubmitterIds = [.. submitters.Select(s => s.Id).Where(id => originalMembersIds.Contains(id))];
+
+        await OnClose.InvokeAsync();
     }
 
     private async Task HandleSave()
@@ -110,13 +123,34 @@
 
         try
         {
-            // TODO: actually save these changes
+
             IEnumerable<string> selectedUserIds = [.. selectedDeveloperIds, .. selectedSubmitterIds];
 
-            foreach (string userId in selectedUserIds)
+
+            // new members => selected members NOT in original members
+            IEnumerable<string> addedUserIds = selectedUserIds.Except(originalMembersIds);
+
+            foreach (string userId in addedUserIds)
             {
                 await ProjectService.AddProjectMemberAsync(Project.Id, userId, userInfo);
             }
+
+
+            // remove members => original members NOT in selected members
+            IEnumerable<string> removeUserIds = originalMembersIds.Except(selectedUserIds);
+
+            foreach(string userId in removeUserIds)
+            {
+                await ProjectService.RemoveProjectMemberAsync(Project.Id, userId, userInfo);
+            }
+
+            // TODO: Update Project.Members
+            // TODO: Update originalMemberIds after save
+
+
+            Snackbar.Add("Project Members Updated", Severity.Success);
+            await OnClose.InvokeAsync();
+
         }
         catch (Exception ex)
         {
