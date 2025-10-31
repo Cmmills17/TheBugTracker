@@ -5,10 +5,12 @@ using TheBugTracker.Services.Interfaces;
 using TheBugTracker.Models;
 using Project = TheBugTracker.Models.Project;
 using TheBugTracker.Client;
+using Microsoft.AspNetCore.Identity;
 
 namespace TheBugTracker.Services
 {
-    public class ProjectDTOService(IProjectRepository repository) : IProjectDTOService
+    public class ProjectDTOService(IProjectRepository repository, 
+                                   UserManager<ApplicationUser> userManager) : IProjectDTOService
     {
 
         public async Task<IEnumerable<ProjectDTO>> GetProjectsAsync(UserInfo user)
@@ -25,8 +27,19 @@ namespace TheBugTracker.Services
         public async Task<ProjectDTO?> GetProjectByIdAsync(int id, UserInfo user)
         {
             Project? project = await repository.GetProjectByIdAsync(id, user);
+            if(project is null) return null;
 
-            return project?.ToDTO();
+            List<UserDTO> members = [];
+            foreach(ApplicationUser member in project.Members)
+            {
+                UserDTO dto = await member.ToDTOWithRole(userManager);
+                members.Add(member.ToDTO());
+            }
+
+            ProjectDTO projectDTO = project.ToDTO();
+            projectDTO.Members = members;
+
+            return projectDTO;
         }
 
         public async Task<ProjectDTO> CreateProjectAsync(ProjectDTO project, UserInfo user)
@@ -49,7 +62,6 @@ namespace TheBugTracker.Services
             return dbProject.ToDTO();
 
         }
-
 
         public async Task UpdateProjectAsync(ProjectDTO project, UserInfo user)
         {
@@ -86,6 +98,21 @@ namespace TheBugTracker.Services
         public async Task RemoveProjectMemberAsync(int projectId, string userId, UserInfo user)
         {
             await repository.RemoveProjectMemberAsync(projectId, userId, user);
+        }
+
+        public async Task<IEnumerable<UserDTO>> GetProjectMembersAsync(int projectId, UserInfo user)
+        {
+            IEnumerable<ApplicationUser> members = await repository.GetProjectMembersAsync(projectId, user);
+
+            List<UserDTO> dtos = [];
+
+            foreach (ApplicationUser member in members)
+            {
+                UserDTO dto = await member.ToDTOWithRole(userManager);
+                dtos.Add(dto);
+            }
+
+            return dtos;
         }
     }
 }

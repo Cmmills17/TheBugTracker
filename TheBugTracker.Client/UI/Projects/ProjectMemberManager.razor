@@ -144,8 +144,10 @@
                 await ProjectService.RemoveProjectMemberAsync(Project.Id, userId, userInfo);
             }
 
-            // TODO: Update Project.Members
-            // TODO: Update originalMemberIds after save
+
+            Project.Members = [.. await ProjectService.GetProjectMembersAsync(Project.Id, userInfo)];
+
+            originalMembersIds = Project.Members.Select(m => m.Id);
 
 
             Snackbar.Add("Project Members Updated", Severity.Success);

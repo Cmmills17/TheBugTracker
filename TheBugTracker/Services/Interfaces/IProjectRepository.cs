@@ -91,5 +91,15 @@ namespace TheBugTracker.Services.Interfaces
         /// <returns></returns>
         public Task RemoveProjectMemberAsync(int projectId, string userId, UserInfo user);
 
+        /// <summary>
+        /// Retrieves a list of users currently assigned
+        /// to a specific project
+        /// </summary>
+        /// <param name="projectId">The ID of the project</param>
+        /// <param name="user">Claims of the current user</param>
+        /// <returns>A collection of users</returns>
+        public Task<IEnumerable<ApplicationUser>> GetProjectMembersAsync(int projectId, UserInfo user);
+
+
     }
 }

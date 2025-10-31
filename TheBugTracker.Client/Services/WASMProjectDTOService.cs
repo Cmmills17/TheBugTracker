@@ -78,5 +78,10 @@ namespace TheBugTracker.Client.Services
         {
             throw new NotImplementedException();
         }
+
+        public Task<IEnumerable<UserDTO>> GetProjectMembersAsync(int projectId, UserInfo user)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
