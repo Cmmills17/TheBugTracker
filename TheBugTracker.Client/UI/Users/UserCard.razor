@@ -1,0 +1,28 @@
+﻿@if(User is not null)
+{
+    <div class="d-flex align-items-center gap-2">
+        
+        <div>
+            <MudAvatar>
+                <MudImage Src="@User.ImageUrl" />
+            </MudAvatar>
+        </div>
+
+        <div>
+
+            <MudText Typo="Typo.body1">@User.FullName</MudText>
+            <MudText Typo="Typo.overline">@User.Role?.GetDisplayName()</MudText>
+
+        </div>
+
+    </div>
+}
+
+
+
+
+@code 
+{
+    [Parameter, EditorRequired]
+    public UserDTO? User { get; set; }
+}

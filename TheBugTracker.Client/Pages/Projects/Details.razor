@@ -109,15 +109,24 @@
                                     No Members Assigned
                                 </MudText>
 
-                    </div>
-                }
-                else
-                {
-                    foreach(UserDTO member in project.Members)
-                    {
-                        <div>@member.FullName</div>
-                    }
-                } 
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="row">
+
+                                @foreach(UserDTO member in project.Members)
+                                {
+                                    <div class="col">
+
+                                        <UserCard User="member" />
+
+                                    </div>
+                                }
+
+                            </div>
+
+                        } 
                    
 
                     
